@@ -448,8 +448,17 @@
     }
   }
 
+  // Vince, 2026-08-09: "stuck in the middle of the screen and he can't click
+  // on it or dismiss it. It's blocking content." Two things fixed it:
+  // (1) style.css no longer sets pointer-events:none on the visible box, so
+  // a tap actually reaches it; (2) dismissToast() below is wired to both a
+  // tap AND a timer, and whichever fires first wins (the other is
+  // cancelled) — so it can NEVER get stuck on screen with no way off it,
+  // even if a future bug ever caused it to show unexpectedly.
   let toastQueue = [];
   let toastShowing = false;
+  let toastHideTimer = null;
+  let toastAdvanceTimer = null;
 
   function queueBadgeToasts(badges) {
     toastQueue = toastQueue.concat(badges);
@@ -465,10 +474,14 @@
     document.getElementById("badge-toast-desc").textContent = b.desc + " — Buddy is SO proud.";
     toast.hidden = false;
     fireConfetti(true);
-    setTimeout(() => {
-      toast.hidden = true;
-      setTimeout(showNextToast, 300);
-    }, 2600);
+    toastHideTimer = setTimeout(dismissToast, 2600);
+  }
+
+  function dismissToast() {
+    if (toastHideTimer) { clearTimeout(toastHideTimer); toastHideTimer = null; }
+    if (toastAdvanceTimer) { clearTimeout(toastAdvanceTimer); toastAdvanceTimer = null; }
+    document.getElementById("badge-toast").hidden = true;
+    toastAdvanceTimer = setTimeout(showNextToast, 300);
   }
 
   // ---------- Confetti (self-contained, no CDN — must work fully offline) ----------
@@ -556,6 +569,9 @@
     // see it pop on page load — checkBadges() below only queues NEWLY
     // unlocked badges, never re-shows old ones, so this is just a guard.
     document.getElementById("badge-toast").hidden = true;
+    // Tap anywhere on the toast to dismiss it immediately (Vince, 2026-08-09
+    // — it must never be able to just sit there blocking the screen).
+    document.getElementById("badge-toast").addEventListener("click", dismissToast);
 
     document.getElementById("score-total").textContent = TOTAL_TRIP_POINTS;
     renderCountdown();
@@ -580,6 +596,23 @@
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+      // sw.js is cache-first (offline in Big Sur needs it), which means a
+      // shipped fix can sit invisible on a phone that already has the app
+      // open — the old JS keeps running in memory even after a new
+      // service worker installs in the background. This is exactly what
+      // happened with the 2026-08-09 badge-toast fix reaching Vince's
+      // phone. Reload ONCE, automatically, the moment a new version
+      // actually takes control — so a fix reaches him without having to
+      // know to force-close and reopen the app. Guarded so it can only
+      // fire once per page life (a second controllerchange should never
+      // happen, but a reload loop would be a much worse bug than the one
+      // this is fixing).
+      let reloadedForUpdate = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (reloadedForUpdate) return;
+        reloadedForUpdate = true;
+        window.location.reload();
       });
     }
   }

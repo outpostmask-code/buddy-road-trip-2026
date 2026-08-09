@@ -4,15 +4,19 @@
 // as they're viewed — so if you open a day's map once with wifi/signal (e.g. at
 // the hotel), those tiles are already saved for later when signal drops.
 
-// Bump SHELL_CACHE (v1 -> v2) any time index.html/style.css/app.js/data.js
-// change. This is a cache-first service worker, so without a version bump a
-// phone that already installed the app keeps serving the OLD shell forever
-// — the fix in the repo never reaches the device. The version bump is what
-// makes the "activate" handler below delete the old cache and pull fresh
-// files. (This bit us on the 2026-08-09 mobile-layout fix: testing on
-// desktop showed the new CSS, but a previously-loaded phone would not have
-// gotten it without this bump.)
-const SHELL_CACHE = "buddy-shell-v2";
+// Bump SHELL_CACHE any time index.html/style.css/app.js/data.js change.
+// This is a cache-first service worker, so without a version bump a phone
+// that already installed the app keeps serving the OLD shell forever — the
+// fix in the repo never reaches the device. The version bump is what makes
+// the "activate" handler below delete the old cache and pull fresh files.
+// (v1->v2: the 2026-08-09 mobile-layout fix. v2->v3: the SAME DAY, the
+// badge-toast tap-to-dismiss fix — the badge toast bug Vince reported as
+// "still stuck" after v2 shipped was likely this exact mechanism: his phone
+// was still running the OLD service worker's cached JS. app.js now also
+// force-reloads once when a new service worker takes control, so this
+// class of "the fix shipped but he's still seeing the bug" stops recurring
+// even if a future change forgets to bump this by hand.)
+const SHELL_CACHE = "buddy-shell-v3";
 const TILE_CACHE = "buddy-tiles-v1";
 
 const SHELL_FILES = [
