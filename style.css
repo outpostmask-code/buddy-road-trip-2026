@@ -230,6 +230,45 @@ button { font: inherit; }
   white-space: nowrap;
 }
 
+/* ---------- Live schedule strip ---------- */
+/* Colorblind-safe: ahead = blue, behind = amber, on time = grey.
+   NEVER red/green. No fixed height — it wraps at large text. */
+
+.schedule-strip {
+  font-size: 0.78em;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  padding: 0.5em 0.7em;
+  margin-bottom: 0.8em;
+  height: auto;
+  overflow-wrap: anywhere;
+  border: 0.09em solid var(--line);
+  background: #F3F1EC;
+  color: var(--ink-soft);
+}
+.schedule-strip.ahead  { background: #E1F1FB; border-color: var(--blue);  color: #04618f; }
+.schedule-strip.behind { background: #FFF3DD; border-color: var(--amber); color: #7A5B00; }
+.schedule-strip[hidden] { display: none !important; }
+
+/* Per-stop live ETA, sits beside the printed time */
+.stop-live {
+  display: inline-block;
+  margin-left: 0.5em;
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--blue);
+  overflow-wrap: anywhere;
+}
+.stop-live.actual   { color: var(--grey); }
+.stop-live.anchored { color: #7A5B00; }
+
+/* The stop you're heading to next */
+.stop-card.next-up {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 0.12em rgba(2,132,199,0.25);
+}
+
 /* ---------- Map ---------- */
 
 .map-card {
@@ -565,6 +604,28 @@ button { font: inherit; }
   padding: 1.5em 1em 0.5em;
   line-height: 1.7;
 }
+
+/* Trip timings readout. Monospace so the times line up into columns, but
+   sized in em and allowed to scroll SIDEWAYS ON ITS OWN (never the page) —
+   this is the documented pattern for wide content that must not force the
+   whole page to slide at 338px. */
+.timings-box {
+  display: block;
+  text-align: left;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.68em;
+  line-height: 1.5;
+  background: var(--card);
+  border: 0.09em solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.8em;
+  margin: 0.6em 0;
+  color: var(--ink);
+  overflow-x: auto;
+  white-space: pre;
+  -webkit-overflow-scrolling: touch;
+}
+.timings-box[hidden] { display: none !important; }
 
 /* ---------- Badge toast ---------- */
 

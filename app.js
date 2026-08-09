@@ -8,7 +8,12 @@
     photos: "buddy_photos_v1",
     pretrip: "buddy_pretrip_v1",
     badges: "buddy_badges_v1",
-    selectedDay: "buddy_selected_day_v1"
+    selectedDay: "buddy_selected_day_v1",
+    // When each stop was ticked off. This is how the trip records its OWN real
+    // leg times — see the "⏱ Trip timings" button in the footer. Researched
+    // drive times are guesses; these are measured, and they are what makes the
+    // next vacation app's live-ETA feature accurate instead of optimistic.
+    stopTimes: "buddy_stop_times_v1"
   };
 
   // ---------- localStorage helpers ----------
@@ -27,11 +32,26 @@
     } catch (e) { /* storage full/unavailable — degrade silently */ }
   }
 
+  function loadMap(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      return {};
+    }
+  }
+  function saveMap(key, obj) {
+    try {
+      localStorage.setItem(key, JSON.stringify(obj));
+    } catch (e) { /* storage full/unavailable — degrade silently */ }
+  }
+
   let doneStops = loadSet(STORAGE_KEYS.done);
   let donePhotos = loadSet(STORAGE_KEYS.photos);
   let donePretrip = loadSet(STORAGE_KEYS.pretrip);
   let unlockedBadges = loadSet(STORAGE_KEYS.badges);
   let selectedDayId = Number(localStorage.getItem(STORAGE_KEYS.selectedDay)) || null;
+  let stopTimes = loadMap(STORAGE_KEYS.stopTimes);   // { stopId: ISO timestamp }
 
   // ---------- Pacific time helpers ----------
 
@@ -60,7 +80,7 @@
     return `${p.year}-${p.month}-${p.day}`;
   }
 
-  const TRIP_START_PT = Date.UTC(2026, 7, 9, 9, 30, 0);   // Aug 9, 2026, 9:30 AM PT
+  const TRIP_START_PT = Date.UTC(2026, 7, 9, 9, 0, 0);    // Aug 9, 2026, 9:00 AM PT (Vince moved it up 30 min)
   const TRIP_END_PT = Date.UTC(2026, 7, 13, 0, 0, 0);      // midnight ending Day 4
 
   // ---------- Score ----------
@@ -168,6 +188,7 @@
   let gpsMarker = null;
   let gpsAccuracyCircle = null;
   let gpsWatchId = null;
+  let gpsLastFix = null;   // {lat,lng} — feeds the live 'X mi out' estimate
 
   function initMap() {
     map = L.map("map", { zoomControl: true, attributionControl: true });
@@ -223,6 +244,7 @@
     if (gpsWatchId !== null) {
       navigator.geolocation.clearWatch(gpsWatchId);
       gpsWatchId = null;
+      gpsLastFix = null;
       if (gpsMarker) { map.removeLayer(gpsMarker); gpsMarker = null; }
       if (gpsAccuracyCircle) { map.removeLayer(gpsAccuracyCircle); gpsAccuracyCircle = null; }
       btn.textContent = "📍 Show my location";
@@ -238,6 +260,8 @@
     gpsWatchId = navigator.geolocation.watchPosition(
       (pos) => {
         const { latitude, longitude, accuracy } = pos.coords;
+        gpsLastFix = { lat: latitude, lng: longitude };
+        renderScheduleStrip(currentDay());   // live "how far out" line
         btn.textContent = "📍 Following you";
         if (!gpsMarker) {
           gpsMarker = L.circleMarker([latitude, longitude], {
@@ -289,17 +313,40 @@
   function renderStopList(day) {
     const list = document.getElementById("stop-list");
     list.innerHTML = "";
+    const rows = projectDay(day);
+    const isToday = day.date === pacificDateString(new Date());
+    const nextIdx = rows.findIndex((r) => !r.done);
+
     day.stops.forEach((stop, idx) => {
       const isDone = doneStops.has(stop.id);
+      const row = rows[idx];
       const li = document.createElement("li");
-      li.className = "stop-card" + (isDone ? " done" : "");
+      li.className = "stop-card" + (isDone ? " done" : "") + (isToday && idx === nextIdx ? " next-up" : "");
       const dirUrl = "https://maps.google.com/?q=" + encodeURIComponent(stop.address);
+
+      // The live line: what time we now expect to be here. Only shown for
+      // TODAY — projecting a future day from "now" would be nonsense.
+      // Only show the live chip when it tells you something the printed time
+      // doesn't. Echoing "9:00 AM" next to "9:00 AM" is just noise.
+      let live = "";
+      if (isToday) {
+        const d = row.delta;
+        if (isDone && row.source === "actual") {
+          live = `<span class="stop-live actual">✔ ${escapeHtml(fmtMins(row.eta))}</span>`;
+        } else if (row.source === "anchored" && d != null && Math.abs(d) < 10) {
+          live = `<span class="stop-live anchored">🔒 booked</span>`;
+        } else if (d == null || Math.abs(d) >= 10) {
+          const tag = d == null ? "" :
+            (d < 0 ? " · " + fmtGap(-d * 60000) + " early" : " · " + fmtGap(d * 60000) + " late");
+          live = `<span class="stop-live">~${escapeHtml(fmtMins(row.eta))}${escapeHtml(tag)}</span>`;
+        }
+      }
 
       li.innerHTML = `
         <div class="stop-top">
           <div class="stop-badge-num">${idx + 1}</div>
           <div class="stop-info">
-            <div class="stop-time">${escapeHtml(stop.time)}</div>
+            <div class="stop-time">${escapeHtml(stop.time)}${live}</div>
             <div class="stop-name">${escapeHtml(stop.name)}</div>
             <div class="stop-address">${escapeHtml(stop.address)}</div>
             ${stop.note ? `<div class="stop-note">💡 ${escapeHtml(stop.note)}</div>` : ""}
@@ -334,10 +381,13 @@
     const wasDone = doneStops.has(stopId);
     if (wasDone) {
       doneStops.delete(stopId);
+      delete stopTimes[stopId];        // untick = it didn't happen yet, drop the stamp
     } else {
       doneStops.add(stopId);
+      stopTimes[stopId] = new Date().toISOString();   // stamp WHEN — this is the measurement
       fireConfetti();
     }
+    saveMap(STORAGE_KEYS.stopTimes, stopTimes);
     saveSet(STORAGE_KEYS.done, doneStops);
     renderScore();
     renderStopList(currentDay());
@@ -356,8 +406,59 @@
     document.documentElement.style.setProperty("--day-color", day.color);
     document.documentElement.style.setProperty("--day-color-soft", day.colorSoft);
     document.querySelector(".day-panel").style.setProperty("--day-color", day.color);
+    renderScheduleStrip(day);
     renderStopList(day);
     renderMapForDay(day);
+  }
+
+  function renderScheduleStrip(day) {
+    const el = document.getElementById("schedule-strip");
+    const st = scheduleStatus(day);
+    if (!st) { el.hidden = true; return; }
+    let msg = st.text + " — next: " + st.next.stop.name;
+    if (gpsLastFix) {
+      const out = etaFromGps(st.next.stop);
+      if (out) msg += " · " + out;
+    }
+    el.textContent = msg;
+    el.className = "schedule-strip " + st.tone;
+    el.hidden = false;
+  }
+
+  // ---------- GPS-based "how far out are we?" ----------
+  //
+  // Straight-line distance is BADLY wrong on Highway 1 — Bixby to McWay is
+  // ~28 winding miles that a crow would call 15. So instead of guessing a
+  // speed, each leg self-calibrates: we know the real driveMin between the
+  // two stops, and we know their straight-line distance, so we derive that
+  // leg's own "how much worse than a crow" factor and apply it to how far
+  // YOU still are. On a straight 101 leg the factor is near 1; through Big
+  // Sur it comes out much higher, automatically.
+
+  function haversineMiles(a, b) {
+    const R = 3958.8, toRad = (d) => d * Math.PI / 180;
+    const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+    const s = Math.sin(dLat / 2) ** 2 +
+              Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(s));
+  }
+
+  function etaFromGps(stop) {
+    if (!gpsLastFix) return null;
+    const day = currentDay();
+    const i = day.stops.findIndex((s) => s.id === stop.id);
+    const prev = i > 0 ? day.stops[i - 1] : null;
+    const miles = haversineMiles(gpsLastFix, stop);
+    if (miles < 0.3) return "you're here";
+
+    // Minutes per straight-line mile, calibrated on THIS leg's real drive time.
+    let mpm = 1.6;                                    // fallback ≈ 37 mph
+    if (prev && stop.driveMin) {
+      const legMi = haversineMiles(prev, stop);
+      if (legMi > 0.5) mpm = stop.driveMin / legMi;   // self-calibrating
+    }
+    const mins = Math.round(miles * mpm);
+    return miles.toFixed(miles < 10 ? 1 : 0) + " mi · ~" + fmtGap(mins * 60000) + " out";
   }
 
   // ---------- Photo scavenger hunt ----------
@@ -484,6 +585,129 @@
     toastAdvanceTimer = setTimeout(showNextToast, 300);
   }
 
+  // ---------- Live schedule — "when will we actually get there?" ----------
+  //
+  // THE RULE THAT MAKES THIS WORK: some stops CANNOT move earlier. The hotel
+  // won't check you in before 4, the aquarium ticket is for 10, the sun sets
+  // when it sets, the table is booked for 7. Those are `anchored: true`.
+  // A naive "you're 45 min ahead so everything is 45 min earlier" would tell
+  // you dinner is at 6:15 and sunset at 7:15 — confidently wrong, and worse
+  // than the printed plan. So running early buys SLACK BEFORE an anchor, not
+  // an earlier anchor.
+
+  function minsNowPT() {
+    const p = pacificParts(new Date());
+    return Number(p.hour) % 24 * 60 + Number(p.minute);
+  }
+
+  function fmtMins(m) {
+    m = Math.round(m);
+    let h = Math.floor(m / 60) % 24, mm = m % 60;
+    const ap = h >= 12 ? "PM" : "AM";
+    let h12 = h % 12; if (h12 === 0) h12 = 12;
+    return h12 + ":" + String(mm).padStart(2, "0") + " " + ap;
+  }
+
+  // Walk the day forward and project an arrival time for every stop.
+  // Completed stops use their REAL recorded time; the rest are projected.
+  function projectDay(day) {
+    const nowM = minsNowPT();
+    const todayStr = pacificDateString(new Date());
+    const isToday = day.date === todayStr;
+    let cursor = null;   // when we are free to leave the previous stop
+
+    return day.stops.map((s) => {
+      const realIso = stopTimes[s.id];
+      const done = doneStops.has(s.id);
+      let eta, source;
+
+      if (done && realIso) {
+        const p = pacificParts(new Date(realIso));
+        eta = Number(p.hour) % 24 * 60 + Number(p.minute);
+        source = "actual";
+      } else {
+        const drive = s.driveMin || 0;
+        // Earliest we could physically arrive: from where we are in the day,
+        // plus the drive. For the first not-yet-done stop on TODAY that means
+        // "from right now"; on a future day, from its planned time.
+        const earliest = (cursor === null)
+          ? (isToday ? nowM + drive : (s.plannedMin != null ? s.plannedMin : 0))
+          : cursor + drive;
+        // An anchored stop never happens before its booked time.
+        eta = (s.anchored && s.plannedMin != null) ? Math.max(earliest, s.plannedMin) : earliest;
+        source = (eta > earliest) ? "anchored" : "projected";
+      }
+      cursor = eta + (s.dwellMin || 0);
+      return { stop: s, eta, source, done,
+               delta: s.plannedMin != null ? eta - s.plannedMin : null };
+    });
+  }
+
+  // "How are we doing?" — measured against the next stop that has a real
+  // clock time. Returns null when there is nothing meaningful to say.
+  function scheduleStatus(day) {
+    if (day.date !== pacificDateString(new Date())) return null;
+    const rows = projectDay(day);
+    const next = rows.find((r) => !r.done && r.stop.plannedMin != null);
+    if (!next) return null;
+    const d = Math.round(next.delta);
+    if (Math.abs(d) < 10) return { text: "⏱ Right on schedule", tone: "ok", next: next };
+    if (d < 0) return { text: "⏱ " + fmtGap(-d * 60000) + " ahead of plan", tone: "ahead", next: next };
+    return { text: "⏱ " + fmtGap(d * 60000) + " behind plan", tone: "behind", next: next };
+  }
+
+  // ---------- Trip timings — the trip measuring its own drive times ----------
+  //
+  // Every "We did it!" tap stamps the time. This turns those stamps into a
+  // readable list of how long each leg ACTUALLY took, which is the data the
+  // next vacation app needs for live ETAs. Researched drive times are guesses;
+  // these are real. Copy the text out after the trip.
+
+  function fmtClock(iso) {
+    return new Date(iso).toLocaleTimeString("en-US", {
+      timeZone: "America/Los_Angeles", hour: "numeric", minute: "2-digit"
+    });
+  }
+
+  function fmtGap(ms) {
+    const mins = Math.round(ms / 60000);
+    if (mins < 60) return mins + " min";
+    const h = Math.floor(mins / 60);
+    return h + "h " + String(mins % 60).padStart(2, "0") + "m";
+  }
+
+  function buildTimingsText() {
+    const lines = [];
+    let recorded = 0;
+    TRIP_DAYS.forEach((day) => {
+      lines.push("── Day " + day.id + ": " + day.title + " (" + day.label + ") ──");
+      let prev = null;
+      day.stops.forEach((s) => {
+        const iso = stopTimes[s.id];
+        if (!iso) { lines.push("  ·  " + s.name + " — (not marked)"); return; }
+        recorded++;
+        // Gap from the previous RECORDED stop = drive + time spent there.
+        const gap = prev ? "   [+" + fmtGap(new Date(iso) - new Date(prev)) + " since last stop]" : "";
+        lines.push("  " + fmtClock(iso) + "  " + s.name + gap);
+        prev = iso;
+      });
+      lines.push("");
+    });
+    if (!recorded) {
+      return "No stops marked yet.\n\nTap “We did it!” at each stop and this fills in\nwith the real times — that's how the next trip's\napp learns how long each drive actually takes.";
+    }
+    lines.push("(Times are Pacific. Each [+gap] is drive time PLUS however");
+    lines.push("long you spent at the previous stop.)");
+    return lines.join("\n");
+  }
+
+  function toggleTimings() {
+    const box = document.getElementById("timings-box");
+    if (!box.hidden) { box.hidden = true; return; }
+    box.textContent = buildTimingsText();
+    box.hidden = false;
+  }
+
   // ---------- Confetti (self-contained, no CDN — must work fully offline) ----------
 
   function fireConfetti(big) {
@@ -551,7 +775,11 @@
     donePhotos = new Set();
     donePretrip = new Set();
     unlockedBadges = new Set();
-    [STORAGE_KEYS.done, STORAGE_KEYS.photos, STORAGE_KEYS.pretrip, STORAGE_KEYS.badges].forEach((k) => localStorage.removeItem(k));
+    stopTimes = {};
+    [STORAGE_KEYS.done, STORAGE_KEYS.photos, STORAGE_KEYS.pretrip, STORAGE_KEYS.badges,
+     STORAGE_KEYS.stopTimes].forEach((k) => localStorage.removeItem(k));
+    const tbox = document.getElementById("timings-box");
+    if (tbox) tbox.hidden = true;
     renderScore();
     renderDayPanel();
     renderHunt();
@@ -587,6 +815,7 @@
     checkBadges();
 
     document.getElementById("locate-btn").addEventListener("click", toggleGps);
+    document.getElementById("timings-btn").addEventListener("click", toggleTimings);
     document.getElementById("reset-btn").addEventListener("click", resetProgress);
 
     updateOfflineHint();

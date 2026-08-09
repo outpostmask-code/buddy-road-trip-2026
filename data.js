@@ -13,7 +13,8 @@ const TRIP_DAYS = [
     stops: [
       {
         id: "d1-depart",
-        time: "9:30 AM",
+        driveMin: 0, dwellMin: 0, plannedMin: 540, anchored: true,
+        time: "9:00 AM",
         name: "Depart Temple City",
         address: "Temple City, CA",
         lat: 34.1072, lng: -118.0578,
@@ -24,7 +25,8 @@ const TRIP_DAYS = [
       },
       {
         id: "d1-pismo",
-        time: "~1:00 PM",
+        driveMin: 195, dwellMin: 60, plannedMin: 750, anchored: false,
+        time: "~12:30 PM",
         name: "Pismo Beach Supercharge + Lunch",
         address: "333 Five Cities Dr, Pismo Beach, CA",
         lat: 35.1214, lng: -120.6382,
@@ -35,6 +37,7 @@ const TRIP_DAYS = [
       },
       {
         id: "d1-hyatt",
+        driveMin: 135, dwellMin: 30, plannedMin: 960, anchored: true,
         time: "~4:00 PM",
         name: "Hyatt Regency Monterey Check-in",
         address: "1 Old Golf Course Rd, Monterey, CA",
@@ -47,6 +50,7 @@ const TRIP_DAYS = [
       },
       {
         id: "d1-lovers",
+        driveMin: 12, dwellMin: 45, plannedMin: 1200, anchored: true,
         time: "~8:00 PM",
         name: "Lovers Point Park Sunset",
         address: "Ocean View Blvd, Pacific Grove, CA",
@@ -58,6 +62,7 @@ const TRIP_DAYS = [
       },
       {
         id: "d1-montrio",
+        driveMin: 12, dwellMin: 90, plannedMin: 1260, anchored: true,
         time: "Dinner",
         name: "Montrio Bistro",
         address: "414 Calle Principal, Monterey, CA",
@@ -81,6 +86,7 @@ const TRIP_DAYS = [
     stops: [
       {
         id: "d2-park",
+        driveMin: 10, dwellMin: 5, plannedMin: 570, anchored: false,
         time: "Park",
         name: "Cannery Row Garage",
         address: "601 Foam St, Monterey, CA",
@@ -93,6 +99,7 @@ const TRIP_DAYS = [
       },
       {
         id: "d2-aquarium",
+        driveMin: 5, dwellMin: 150, plannedMin: 600, anchored: true,
         time: "~10:00 AM",
         name: "Monterey Bay Aquarium",
         address: "886 Cannery Row, Monterey, CA",
@@ -106,6 +113,7 @@ const TRIP_DAYS = [
       },
       {
         id: "d2-lunch",
+        driveMin: 5, dwellMin: 60, plannedMin: 750, anchored: false,
         time: "~12:30 PM",
         name: "Lunch on Cannery Row",
         address: "Cannery Row, Monterey, CA",
@@ -117,6 +125,7 @@ const TRIP_DAYS = [
       },
       {
         id: "d2-surrey",
+        driveMin: 5, dwellMin: 120, plannedMin: 810, anchored: true,
         time: "~1:30 PM",
         name: "Surrey Ride — Adventures by the Sea",
         address: "299 Cannery Row, Monterey, CA",
@@ -141,6 +150,7 @@ const TRIP_DAYS = [
     stops: [
       {
         id: "d3-depart",
+        driveMin: 0, dwellMin: 0, plannedMin: 510, anchored: false,
         time: "8:30 AM",
         name: "Depart South on Hwy 1",
         address: "Monterey, CA",
@@ -152,6 +162,7 @@ const TRIP_DAYS = [
       },
       {
         id: "d3-bixby",
+        driveMin: 40, dwellMin: 20, plannedMin: 555, anchored: false,
         time: "~9:15 AM",
         name: "Bixby Bridge",
         address: "Bixby Bridge, Big Sur, CA",
@@ -163,6 +174,7 @@ const TRIP_DAYS = [
       },
       {
         id: "d3-mcway",
+        driveMin: 50, dwellMin: 45, plannedMin: 630, anchored: false,
         time: "~10:30 AM",
         name: "McWay Falls — Julia Pfeiffer Burns",
         address: "Julia Pfeiffer Burns State Park, Big Sur, CA",
@@ -175,6 +187,7 @@ const TRIP_DAYS = [
       },
       {
         id: "d3-pfeifferbeach",
+        driveMin: 45, dwellMin: 75, plannedMin: 720, anchored: false,
         time: "Midday",
         name: "Pfeiffer Beach",
         address: "Sycamore Canyon Rd, Big Sur, CA",
@@ -187,6 +200,7 @@ const TRIP_DAYS = [
       },
       {
         id: "d3-riverinn",
+        driveMin: 15, dwellMin: 75, plannedMin: 810, anchored: false,
         time: "Lunch",
         name: "Big Sur River Inn",
         address: "46840 CA-1, Big Sur, CA",
@@ -199,6 +213,7 @@ const TRIP_DAYS = [
       },
       {
         id: "d3-pfeifferpark",
+        driveMin: 5, dwellMin: 60, plannedMin: 900, anchored: false,
         time: "Early PM",
         name: "Pfeiffer Big Sur State Park",
         address: "47225 CA-1, Big Sur, CA",
@@ -211,6 +226,7 @@ const TRIP_DAYS = [
       },
       {
         id: "d3-labicyclette",
+        driveMin: 45, dwellMin: 90, plannedMin: 1140, anchored: true,
         time: "Dinner",
         name: "La Bicyclette",
         address: "Dolores & 7th, Carmel, CA",
@@ -234,6 +250,7 @@ const TRIP_DAYS = [
     stops: [
       {
         id: "d4-breakfast",
+        driveMin: 10, dwellMin: 60, plannedMin: 510, anchored: false,
         time: "Morning",
         name: "First Awakenings",
         address: "125 Ocean View Blvd #105, Pacific Grove, CA",
@@ -245,6 +262,7 @@ const TRIP_DAYS = [
       },
       {
         id: "d4-asilomar",
+        driveMin: 8, dwellMin: 45, plannedMin: 600, anchored: false,
         time: "Pre-checkout",
         name: "Asilomar Beach",
         address: "Sunset Dr, Pacific Grove, CA",
@@ -256,6 +274,7 @@ const TRIP_DAYS = [
       },
       {
         id: "d4-checkout",
+        driveMin: 12, dwellMin: 30, plannedMin: 720, anchored: true,
         time: "~Noon",
         name: "Checkout, Drive South 101",
         address: "Monterey, CA",
@@ -267,7 +286,8 @@ const TRIP_DAYS = [
       },
       {
         id: "d4-paso",
-        time: "~1:30 PM",
+        driveMin: 110, dwellMin: 30, plannedMin: 860, anchored: false,
+        time: "~2:20 PM",
         name: "Paso Robles Supercharger",
         address: "Paso Robles, CA",
         lat: 35.6266, lng: -120.6910,
