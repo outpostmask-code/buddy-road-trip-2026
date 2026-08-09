@@ -549,6 +549,14 @@
   // ---------- Init ----------
 
   function init() {
+    // Belt-and-suspenders: force the badge toast hidden on load. It already
+    // carries the `hidden` attribute in index.html and style.css enforces
+    // display:none on [hidden] with !important, but a returning visitor
+    // whose badges were already unlocked in a previous session should never
+    // see it pop on page load — checkBadges() below only queues NEWLY
+    // unlocked badges, never re-shows old ones, so this is just a guard.
+    document.getElementById("badge-toast").hidden = true;
+
     document.getElementById("score-total").textContent = TOTAL_TRIP_POINTS;
     renderCountdown();
     setInterval(renderCountdown, 30000);

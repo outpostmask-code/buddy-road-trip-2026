@@ -4,7 +4,15 @@
 // as they're viewed — so if you open a day's map once with wifi/signal (e.g. at
 // the hotel), those tiles are already saved for later when signal drops.
 
-const SHELL_CACHE = "buddy-shell-v1";
+// Bump SHELL_CACHE (v1 -> v2) any time index.html/style.css/app.js/data.js
+// change. This is a cache-first service worker, so without a version bump a
+// phone that already installed the app keeps serving the OLD shell forever
+// — the fix in the repo never reaches the device. The version bump is what
+// makes the "activate" handler below delete the old cache and pull fresh
+// files. (This bit us on the 2026-08-09 mobile-layout fix: testing on
+// desktop showed the new CSS, but a previously-loaded phone would not have
+// gotten it without this bump.)
+const SHELL_CACHE = "buddy-shell-v2";
 const TILE_CACHE = "buddy-tiles-v1";
 
 const SHELL_FILES = [

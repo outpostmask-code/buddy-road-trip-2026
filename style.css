@@ -6,6 +6,7 @@
 :root {
   font: -apple-system-body;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 100%;
 
   --ink: #1C1B1F;
   --ink-soft: #55535C;
@@ -43,6 +44,11 @@ body {
   min-height: 100vh;
   padding-bottom: 2em;
 }
+/* Never let a fixed height trap growing text, and never let a long word
+   overflow — same rule Teller/Quinn/Timeclock use (see
+   payment-reconciliation/oldteller_teller.css). Belt-and-suspenders on top
+   of the per-component overflow-wrap rules already set throughout. */
+.btn, .day-tab, .tag, .check-item, .badge-card { height: auto; overflow-wrap: anywhere; }
 
 h1, h2, h3 { margin: 0 0 0.5em 0; line-height: 1.25; }
 p { margin: 0 0 0.6em 0; }
@@ -52,10 +58,10 @@ button { font: inherit; }
 
 .app-header {
   background: linear-gradient(135deg, var(--amber), #FFC862);
-  padding: 1em 1em 1.1em;
+  padding: 0.8em 0.9em 0.9em;
   color: #3A2600;
-  border-bottom-left-radius: 1.4em;
-  border-bottom-right-radius: 1.4em;
+  border-bottom-left-radius: 1.2em;
+  border-bottom-right-radius: 1.2em;
   box-shadow: var(--shadow);
 }
 
@@ -63,53 +69,55 @@ button { font: inherit; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.6em;
+  gap: 0.5em;
   flex-wrap: wrap;
 }
 
 .brand {
   display: flex;
   align-items: baseline;
-  gap: 0.35em;
+  gap: 0.3em;
   min-width: 0;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
 }
 
-.brand-paw { font-size: 1.4em; }
-.brand-name { font-size: 1.5em; font-weight: 900; letter-spacing: 0.02em; }
-.brand-sub { font-size: 0.95em; font-weight: 600; opacity: 0.85; }
+.brand-paw { font-size: 1.1em; }
+.brand-name { font-size: 1.15em; font-weight: 900; letter-spacing: 0.01em; }
+.brand-sub { font-size: 0.8em; font-weight: 600; opacity: 0.85; }
 
 .score-pill {
   background: rgba(255,255,255,0.55);
-  border: 0.12em solid rgba(58,38,0,0.25);
+  border: 0.1em solid rgba(58,38,0,0.25);
   border-radius: 999px;
-  padding: 0.4em 0.85em;
+  padding: 0.3em 0.7em;
   font-weight: 800;
   display: flex;
   align-items: baseline;
-  gap: 0.3em;
+  gap: 0.25em;
   white-space: nowrap;
   flex-shrink: 0;
 }
-.score-num { font-size: 1.15em; }
-.score-label { font-size: 0.85em; opacity: 0.8; }
+.score-num { font-size: 0.95em; }
+.score-label { font-size: 0.75em; opacity: 0.8; }
 
 .countdown-banner {
-  margin-top: 0.75em;
+  margin-top: 0.6em;
   background: rgba(255,255,255,0.6);
   border-radius: var(--radius-sm);
-  padding: 0.65em 0.9em;
+  padding: 0.5em 0.75em;
   font-weight: 800;
-  font-size: 1.05em;
+  font-size: 0.88em;
   text-align: center;
   overflow-wrap: anywhere;
 }
 
 .weather-banner {
-  margin-top: 0.5em;
+  margin-top: 0.4em;
   background: rgba(28,27,31,0.08);
   border-radius: var(--radius-sm);
-  padding: 0.55em 0.9em;
-  font-size: 0.85em;
+  padding: 0.45em 0.75em;
+  font-size: 0.75em;
   font-weight: 600;
   text-align: center;
   overflow-wrap: anywhere;
@@ -120,43 +128,43 @@ button { font: inherit; }
 .day-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5em;
-  padding: 1em;
+  gap: 0.4em;
+  padding: 0.8em;
 }
 
 .day-tab {
   flex: 1 1 auto;
-  min-width: 7em;
+  min-width: 6em;
   min-height: 0;
   height: auto;
   border: none;
   border-radius: var(--radius-md);
-  padding: 0.7em 0.5em;
+  padding: 0.5em 0.4em;
   background: var(--card);
   box-shadow: var(--shadow);
   cursor: pointer;
   text-align: center;
-  border: 0.14em solid transparent;
+  border: 0.12em solid transparent;
   overflow-wrap: anywhere;
 }
 
 .day-tab .dt-num {
   display: block;
-  font-size: 0.75em;
+  font-size: 0.68em;
   font-weight: 700;
   color: var(--ink-soft);
 }
 .day-tab .dt-title {
   display: block;
-  font-size: 0.95em;
+  font-size: 0.8em;
   font-weight: 800;
-  margin-top: 0.15em;
+  margin-top: 0.1em;
 }
 .day-tab .dt-date {
   display: block;
-  font-size: 0.72em;
+  font-size: 0.64em;
   color: var(--ink-soft);
-  margin-top: 0.15em;
+  margin-top: 0.1em;
 }
 
 .day-tab.active {
@@ -166,13 +174,13 @@ button { font: inherit; }
 .day-tab.today::after {
   content: "TODAY";
   display: inline-block;
-  margin-top: 0.3em;
-  font-size: 0.62em;
+  margin-top: 0.25em;
+  font-size: 0.58em;
   font-weight: 900;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   background: var(--tab-color, var(--blue));
   color: white;
-  padding: 0.15em 0.55em;
+  padding: 0.12em 0.5em;
   border-radius: 999px;
 }
 
@@ -191,15 +199,16 @@ button { font: inherit; }
   background: var(--card);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
-  padding: 1.1em;
+  padding: 0.9em;
 }
+.card-panel h2 { font-size: 1.05em; overflow-wrap: break-word; }
 
 .day-panel {
   background: var(--card);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
-  padding: 1.1em;
-  border-top: 0.5em solid var(--day-color);
+  padding: 0.9em;
+  border-top: 0.4em solid var(--day-color);
 }
 
 .day-panel-head {
@@ -208,15 +217,15 @@ button { font: inherit; }
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.4em;
-  margin-bottom: 0.8em;
+  margin-bottom: 0.7em;
 }
-.day-panel-head h2 { font-size: 1.3em; }
+.day-panel-head h2 { font-size: 1.05em; }
 .day-points {
-  font-size: 0.85em;
+  font-size: 0.75em;
   font-weight: 800;
   color: var(--day-color);
   background: var(--day-color-soft);
-  padding: 0.3em 0.7em;
+  padding: 0.25em 0.6em;
   border-radius: 999px;
   white-space: nowrap;
 }
@@ -232,7 +241,7 @@ button { font: inherit; }
 
 #map {
   width: 100%;
-  height: 16em;
+  height: 11em;
 }
 
 .map-controls {
@@ -321,7 +330,7 @@ button { font: inherit; }
 .stop-card {
   border: 0.09em solid var(--line);
   border-radius: var(--radius-md);
-  padding: 0.9em;
+  padding: 0.75em;
   position: relative;
   background: #FFFEFC;
 }
@@ -333,14 +342,14 @@ button { font: inherit; }
 
 .stop-top {
   display: flex;
-  gap: 0.7em;
+  gap: 0.55em;
   align-items: flex-start;
 }
 
 .stop-badge-num {
   flex-shrink: 0;
-  width: 2em;
-  height: 2em;
+  width: 1.6em;
+  height: 1.6em;
   border-radius: 999px;
   background: var(--day-color);
   color: white;
@@ -348,7 +357,7 @@ button { font: inherit; }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.95em;
+  font-size: 0.8em;
 }
 .stop-card.done .stop-badge-num {
   background: var(--grey);
@@ -357,7 +366,7 @@ button { font: inherit; }
 .stop-info { min-width: 0; flex: 1 1 auto; }
 
 .stop-time {
-  font-size: 0.78em;
+  font-size: 0.68em;
   font-weight: 800;
   color: var(--ink-soft);
   text-transform: uppercase;
@@ -365,10 +374,10 @@ button { font: inherit; }
 }
 
 .stop-name {
-  font-size: 1.05em;
+  font-size: 0.9em;
   font-weight: 800;
   margin-top: 0.1em;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 .stop-card.done .stop-name {
   text-decoration: line-through;
@@ -377,47 +386,51 @@ button { font: inherit; }
 }
 
 .stop-address {
-  font-size: 0.85em;
+  font-size: 0.75em;
   color: var(--ink-soft);
-  margin-top: 0.15em;
-  overflow-wrap: anywhere;
+  margin-top: 0.1em;
+  overflow-wrap: break-word;
 }
 
 .stop-note {
-  font-size: 0.82em;
+  font-size: 0.72em;
   color: #7A5B00;
   background: #FFF3DD;
   border-radius: 0.6em;
-  padding: 0.35em 0.6em;
-  margin-top: 0.5em;
+  padding: 0.3em 0.55em;
+  margin-top: 0.4em;
   display: inline-block;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .stop-quote {
-  margin-top: 0.6em;
+  margin-top: 0.5em;
   background: #EDEAF9;
   border-radius: var(--radius-sm);
-  padding: 0.6em 0.8em;
-  font-size: 0.9em;
+  padding: 0.5em 0.7em;
+  font-size: 0.78em;
   font-style: italic;
   color: #3E3468;
   position: relative;
+  overflow-wrap: break-word;
 }
 .stop-quote::before { content: "🐶 "; font-style: normal; }
 
 .stop-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4em;
-  margin-top: 0.5em;
+  gap: 0.35em;
+  margin-top: 0.4em;
 }
 .tag {
-  font-size: 0.72em;
+  font-size: 0.65em;
   font-weight: 800;
-  padding: 0.25em 0.6em;
+  padding: 0.22em 0.55em;
   border-radius: 999px;
   white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .tag-dog { background: #E1F1FB; color: var(--blue); }
 .tag-nodog { background: #F1EFEA; color: var(--ink-soft); }
@@ -426,16 +439,16 @@ button { font: inherit; }
 .stop-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5em;
-  margin-top: 0.75em;
+  gap: 0.4em;
+  margin-top: 0.6em;
 }
-.stop-actions .btn { flex: 1 1 8em; }
+.stop-actions .btn { flex: 1 1 8em; font-size: 0.82em; }
 
 .stop-addr-copy {
-  font-size: 0.78em;
+  font-size: 0.7em;
   color: var(--grey);
-  margin-top: 0.4em;
-  overflow-wrap: anywhere;
+  margin-top: 0.35em;
+  overflow-wrap: break-word;
   cursor: pointer;
   text-decoration: underline dotted;
 }
@@ -454,12 +467,12 @@ button { font: inherit; }
 .check-item {
   display: flex;
   align-items: center;
-  gap: 0.7em;
+  gap: 0.6em;
   border: 0.09em solid var(--line);
   border-radius: var(--radius-sm);
-  padding: 0.65em 0.8em;
+  padding: 0.55em 0.7em;
   cursor: pointer;
-  min-height: 2.6em;
+  min-height: 2.4em;
   height: auto;
 }
 .check-item.checked {
@@ -469,8 +482,8 @@ button { font: inherit; }
 
 .check-box {
   flex-shrink: 0;
-  width: 1.5em;
-  height: 1.5em;
+  width: 1.3em;
+  height: 1.3em;
   border-radius: 0.4em;
   border: 0.14em solid var(--grey);
   display: flex;
@@ -485,9 +498,9 @@ button { font: inherit; }
 }
 
 .check-label {
-  font-size: 0.92em;
+  font-size: 0.82em;
   font-weight: 600;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 .check-item.checked .check-label {
   text-decoration: line-through;
@@ -496,29 +509,30 @@ button { font: inherit; }
 }
 
 .bonus-tag {
-  font-size: 0.6em;
+  font-size: 0.55em;
   font-weight: 800;
   background: #EDEAF9;
   color: #4B3FA8;
-  padding: 0.25em 0.6em;
+  padding: 0.22em 0.55em;
   border-radius: 999px;
   vertical-align: middle;
-  margin-left: 0.4em;
+  margin-left: 0.35em;
   white-space: nowrap;
+  display: inline-block;
 }
 
 /* ---------- Badges ---------- */
 
 .badge-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(9em, 1fr));
-  gap: 0.7em;
+  grid-template-columns: repeat(auto-fill, minmax(7.5em, 1fr));
+  gap: 0.6em;
 }
 
 .badge-card {
   border: 0.09em solid var(--line);
   border-radius: var(--radius-md);
-  padding: 0.8em 0.6em;
+  padding: 0.65em 0.5em;
   text-align: center;
   background: #F7F5F0;
   opacity: 0.55;
@@ -528,18 +542,18 @@ button { font: inherit; }
   background: linear-gradient(160deg, #FFF3DD, #FFE3AE);
   border-color: var(--amber);
 }
-.badge-emoji { font-size: 1.8em; }
+.badge-emoji { font-size: 1.5em; }
 .badge-name {
-  font-size: 0.78em;
+  font-size: 0.7em;
   font-weight: 900;
-  margin-top: 0.3em;
-  overflow-wrap: anywhere;
+  margin-top: 0.25em;
+  overflow-wrap: break-word;
 }
 .badge-desc {
-  font-size: 0.68em;
+  font-size: 0.62em;
   color: var(--ink-soft);
-  margin-top: 0.2em;
-  overflow-wrap: anywhere;
+  margin-top: 0.15em;
+  overflow-wrap: break-word;
 }
 
 /* ---------- Footer ---------- */
@@ -554,6 +568,9 @@ button { font: inherit; }
 
 /* ---------- Badge toast ---------- */
 
+.badge-toast[hidden] {
+  display: none !important;
+}
 .badge-toast {
   position: fixed;
   left: 1em;
