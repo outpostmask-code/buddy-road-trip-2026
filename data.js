@@ -24,21 +24,21 @@ const TRIP_DAYS = [
         quote: "Road trip! I've claimed the back seat."
       },
       {
-        id: "d1-buellton",
-        driveMin: 140, dwellMin: 20, plannedMin: 680, anchored: false,
-        time: "~11:20 AM",
-        name: "Buellton Supercharger",
-        address: "555 McMurray Rd, Buellton, CA",
-        lat: 34.6146, lng: -120.1932,
+        id: "d1-sb-topoff",
+        driveMin: 100, dwellMin: 10, plannedMin: 640, anchored: false,
+        time: "~10:40 AM",
+        name: "Santa Barbara Top-off (10 min)",
+        address: "3943 State St, Santa Barbara, CA",
+        lat: 34.4399, lng: -119.7457,
         points: 25,
         phone: null,
         dogFriendly: true,
-        note: "REQUIRED at 85% start — car can't reach Pismo direct. 20 stalls at the Marriott. Charge to ~80% (15-20 min).",
+        note: "Quick 10-min splash ONLY — just enough to reach Pismo. The real charge happens at lunch. 16 stalls, Five Points center, right off the 101.",
         quote: "A snack stop for the CAR? When is MY snack stop?"
       },
       {
         id: "d1-pismo",
-        driveMin: 40, dwellMin: 60, plannedMin: 750, anchored: false,
+        driveMin: 90, dwellMin: 60, plannedMin: 750, anchored: false,
         time: "~12:30 PM",
         name: "Pismo Beach Supercharge + Lunch",
         address: "333 Five Cities Dr, Pismo Beach, CA",
@@ -46,6 +46,7 @@ const TRIP_DAYS = [
         points: 50,
         phone: null,
         dogFriendly: true,
+        note: "THE charging stop — plug in, then eat. Charge to ~90% over lunch; that covers the whole run to Monterey with room to spare.",
         quote: "SAND. I'm going to roll in all of it."
       },
       {

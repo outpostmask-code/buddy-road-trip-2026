@@ -16,7 +16,7 @@
 // force-reloads once when a new service worker takes control, so this
 // class of "the fix shipped but he's still seeing the bug" stops recurring
 // even if a future change forgets to bump this by hand.)
-const SHELL_CACHE = "buddy-shell-v6";
+const SHELL_CACHE = "buddy-shell-v7";
 const TILE_CACHE = "buddy-tiles-v1";
 
 const SHELL_FILES = [
