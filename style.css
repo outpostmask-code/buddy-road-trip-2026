@@ -1,0 +1,633 @@
+/* BUDDY road trip app
+   Mobile-first. Sized in em/rem so it respects iOS Dynamic Type + Safari zoom.
+   Colorblind-safe palette only: white / grey / blue / amber / purple / teal.
+   Never red vs green. */
+
+:root {
+  font: -apple-system-body;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  --ink: #1C1B1F;
+  --ink-soft: #55535C;
+  --bg: #FAF8F4;
+  --card: #FFFFFF;
+  --line: #E7E3DA;
+  --blue: #0284C7;
+  --amber: #F5A623;
+  --grey: #8A8790;
+  --shadow: 0 0.25em 0.9em rgba(28,27,31,0.08);
+  --radius-lg: 1.4em;
+  --radius-md: 1em;
+  --radius-sm: 0.7em;
+
+  --day-color: var(--amber);
+  --day-color-soft: #FFF3DD;
+}
+
+@media (min-width: 801px) {
+  html { font-size: 16px; }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  min-height: 100vh;
+  padding-bottom: 2em;
+}
+
+h1, h2, h3 { margin: 0 0 0.5em 0; line-height: 1.25; }
+p { margin: 0 0 0.6em 0; }
+button { font: inherit; }
+
+/* ---------- Header ---------- */
+
+.app-header {
+  background: linear-gradient(135deg, var(--amber), #FFC862);
+  padding: 1em 1em 1.1em;
+  color: #3A2600;
+  border-bottom-left-radius: 1.4em;
+  border-bottom-right-radius: 1.4em;
+  box-shadow: var(--shadow);
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6em;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35em;
+  min-width: 0;
+}
+
+.brand-paw { font-size: 1.4em; }
+.brand-name { font-size: 1.5em; font-weight: 900; letter-spacing: 0.02em; }
+.brand-sub { font-size: 0.95em; font-weight: 600; opacity: 0.85; }
+
+.score-pill {
+  background: rgba(255,255,255,0.55);
+  border: 0.12em solid rgba(58,38,0,0.25);
+  border-radius: 999px;
+  padding: 0.4em 0.85em;
+  font-weight: 800;
+  display: flex;
+  align-items: baseline;
+  gap: 0.3em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.score-num { font-size: 1.15em; }
+.score-label { font-size: 0.85em; opacity: 0.8; }
+
+.countdown-banner {
+  margin-top: 0.75em;
+  background: rgba(255,255,255,0.6);
+  border-radius: var(--radius-sm);
+  padding: 0.65em 0.9em;
+  font-weight: 800;
+  font-size: 1.05em;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.weather-banner {
+  margin-top: 0.5em;
+  background: rgba(28,27,31,0.08);
+  border-radius: var(--radius-sm);
+  padding: 0.55em 0.9em;
+  font-size: 0.85em;
+  font-weight: 600;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Day tabs (wrap, never scroll sideways) ---------- */
+
+.day-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  padding: 1em;
+}
+
+.day-tab {
+  flex: 1 1 auto;
+  min-width: 7em;
+  min-height: 0;
+  height: auto;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.7em 0.5em;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  text-align: center;
+  border: 0.14em solid transparent;
+  overflow-wrap: anywhere;
+}
+
+.day-tab .dt-num {
+  display: block;
+  font-size: 0.75em;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.day-tab .dt-title {
+  display: block;
+  font-size: 0.95em;
+  font-weight: 800;
+  margin-top: 0.15em;
+}
+.day-tab .dt-date {
+  display: block;
+  font-size: 0.72em;
+  color: var(--ink-soft);
+  margin-top: 0.15em;
+}
+
+.day-tab.active {
+  border-color: var(--tab-color, var(--blue));
+  background: var(--tab-soft, #E1F1FB);
+}
+.day-tab.today::after {
+  content: "TODAY";
+  display: inline-block;
+  margin-top: 0.3em;
+  font-size: 0.62em;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  background: var(--tab-color, var(--blue));
+  color: white;
+  padding: 0.15em 0.55em;
+  border-radius: 999px;
+}
+
+/* ---------- Layout ---------- */
+
+#main-content {
+  padding: 0 1em;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1em;
+  max-width: 46em;
+  margin: 0 auto;
+}
+
+.card-panel {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 1.1em;
+}
+
+.day-panel {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 1.1em;
+  border-top: 0.5em solid var(--day-color);
+}
+
+.day-panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  margin-bottom: 0.8em;
+}
+.day-panel-head h2 { font-size: 1.3em; }
+.day-points {
+  font-size: 0.85em;
+  font-weight: 800;
+  color: var(--day-color);
+  background: var(--day-color-soft);
+  padding: 0.3em 0.7em;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* ---------- Map ---------- */
+
+.map-card {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 0.09em solid var(--line);
+  margin-bottom: 1em;
+}
+
+#map {
+  width: 100%;
+  height: 16em;
+}
+
+.map-controls {
+  padding: 0.7em;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em;
+  background: #F5F3EE;
+}
+
+.map-hint {
+  font-size: 0.78em;
+  color: var(--ink-soft);
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.7em 1em;
+  font-weight: 800;
+  font-size: 0.9em;
+  cursor: pointer;
+  min-height: 2.6em;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.btn-primary {
+  background: var(--blue);
+  color: white;
+}
+.btn-primary:active { background: #026a9e; }
+
+.btn-ghost {
+  background: white;
+  color: var(--ink);
+  border: 0.11em solid var(--line);
+}
+.btn-ghost.active-toggle {
+  background: var(--blue);
+  color: white;
+  border-color: var(--blue);
+}
+
+.btn-call {
+  background: #EDEAF9;
+  color: #4B3FA8;
+}
+
+.btn-done {
+  background: var(--amber);
+  color: #3A2600;
+}
+.btn-done.completed {
+  background: #EFEBFB;
+  color: #8A8790;
+}
+
+.btn-text {
+  background: transparent;
+  color: var(--ink-soft);
+  text-decoration: underline;
+  font-weight: 600;
+  min-height: 2.4em;
+}
+
+/* ---------- Stop list ---------- */
+
+.stop-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85em;
+}
+
+.stop-card {
+  border: 0.09em solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 0.9em;
+  position: relative;
+  background: #FFFEFC;
+}
+
+.stop-card.done {
+  background: var(--day-color-soft);
+  border-color: var(--day-color);
+}
+
+.stop-top {
+  display: flex;
+  gap: 0.7em;
+  align-items: flex-start;
+}
+
+.stop-badge-num {
+  flex-shrink: 0;
+  width: 2em;
+  height: 2em;
+  border-radius: 999px;
+  background: var(--day-color);
+  color: white;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95em;
+}
+.stop-card.done .stop-badge-num {
+  background: var(--grey);
+}
+
+.stop-info { min-width: 0; flex: 1 1 auto; }
+
+.stop-time {
+  font-size: 0.78em;
+  font-weight: 800;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.stop-name {
+  font-size: 1.05em;
+  font-weight: 800;
+  margin-top: 0.1em;
+  overflow-wrap: anywhere;
+}
+.stop-card.done .stop-name {
+  text-decoration: line-through;
+  text-decoration-thickness: 0.12em;
+  color: var(--ink-soft);
+}
+
+.stop-address {
+  font-size: 0.85em;
+  color: var(--ink-soft);
+  margin-top: 0.15em;
+  overflow-wrap: anywhere;
+}
+
+.stop-note {
+  font-size: 0.82em;
+  color: #7A5B00;
+  background: #FFF3DD;
+  border-radius: 0.6em;
+  padding: 0.35em 0.6em;
+  margin-top: 0.5em;
+  display: inline-block;
+  overflow-wrap: anywhere;
+}
+
+.stop-quote {
+  margin-top: 0.6em;
+  background: #EDEAF9;
+  border-radius: var(--radius-sm);
+  padding: 0.6em 0.8em;
+  font-size: 0.9em;
+  font-style: italic;
+  color: #3E3468;
+  position: relative;
+}
+.stop-quote::before { content: "🐶 "; font-style: normal; }
+
+.stop-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  margin-top: 0.5em;
+}
+.tag {
+  font-size: 0.72em;
+  font-weight: 800;
+  padding: 0.25em 0.6em;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.tag-dog { background: #E1F1FB; color: var(--blue); }
+.tag-nodog { background: #F1EFEA; color: var(--ink-soft); }
+.tag-points { background: var(--day-color-soft); color: var(--day-color); }
+
+.stop-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  margin-top: 0.75em;
+}
+.stop-actions .btn { flex: 1 1 8em; }
+
+.stop-addr-copy {
+  font-size: 0.78em;
+  color: var(--grey);
+  margin-top: 0.4em;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  text-decoration: underline dotted;
+}
+
+/* ---------- Checklists (hunt + pretrip) ---------- */
+
+.checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+}
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  border: 0.09em solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.65em 0.8em;
+  cursor: pointer;
+  min-height: 2.6em;
+  height: auto;
+}
+.check-item.checked {
+  background: var(--day-color-soft, #FFF3DD);
+  border-color: var(--amber);
+}
+
+.check-box {
+  flex-shrink: 0;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 0.4em;
+  border: 0.14em solid var(--grey);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  color: white;
+}
+.check-item.checked .check-box {
+  background: var(--amber);
+  border-color: var(--amber);
+}
+
+.check-label {
+  font-size: 0.92em;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.check-item.checked .check-label {
+  text-decoration: line-through;
+  text-decoration-thickness: 0.12em;
+  color: var(--ink-soft);
+}
+
+.bonus-tag {
+  font-size: 0.6em;
+  font-weight: 800;
+  background: #EDEAF9;
+  color: #4B3FA8;
+  padding: 0.25em 0.6em;
+  border-radius: 999px;
+  vertical-align: middle;
+  margin-left: 0.4em;
+  white-space: nowrap;
+}
+
+/* ---------- Badges ---------- */
+
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9em, 1fr));
+  gap: 0.7em;
+}
+
+.badge-card {
+  border: 0.09em solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 0.8em 0.6em;
+  text-align: center;
+  background: #F7F5F0;
+  opacity: 0.55;
+}
+.badge-card.unlocked {
+  opacity: 1;
+  background: linear-gradient(160deg, #FFF3DD, #FFE3AE);
+  border-color: var(--amber);
+}
+.badge-emoji { font-size: 1.8em; }
+.badge-name {
+  font-size: 0.78em;
+  font-weight: 900;
+  margin-top: 0.3em;
+  overflow-wrap: anywhere;
+}
+.badge-desc {
+  font-size: 0.68em;
+  color: var(--ink-soft);
+  margin-top: 0.2em;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Footer ---------- */
+
+.app-footer {
+  text-align: center;
+  font-size: 0.8em;
+  color: var(--ink-soft);
+  padding: 1.5em 1em 0.5em;
+  line-height: 1.7;
+}
+
+/* ---------- Badge toast ---------- */
+
+.badge-toast {
+  position: fixed;
+  left: 1em;
+  right: 1em;
+  bottom: 1.2em;
+  display: flex;
+  justify-content: center;
+  z-index: 500;
+  pointer-events: none;
+}
+.badge-toast-inner {
+  background: var(--ink);
+  color: white;
+  border-radius: var(--radius-lg);
+  padding: 0.9em 1.2em;
+  box-shadow: 0 0.5em 1.5em rgba(0,0,0,0.35);
+  text-align: center;
+  max-width: 22em;
+  animation: toast-in 0.35s ease-out;
+}
+@keyframes toast-in {
+  from { transform: translateY(1em) scale(0.9); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.badge-toast-emoji { font-size: 2em; }
+.badge-toast-name {
+  font-weight: 900;
+  font-size: 1.05em;
+  letter-spacing: 0.03em;
+  margin-top: 0.2em;
+}
+.badge-toast-desc {
+  font-size: 0.85em;
+  opacity: 0.85;
+  margin-top: 0.2em;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Confetti ---------- */
+
+#confetti-canvas-wrap {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 600;
+}
+#confetti-canvas-wrap canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- Leaflet popup tweaks ---------- */
+
+.leaflet-popup-content {
+  font-family: inherit;
+  font-size: 0.95em;
+  line-height: 1.5;
+}
+.popup-stop-name { font-weight: 800; margin-bottom: 0.3em; }
+.popup-directions {
+  display: inline-block;
+  margin-top: 0.4em;
+  background: var(--blue);
+  color: white;
+  padding: 0.35em 0.7em;
+  border-radius: 0.6em;
+  font-weight: 700;
+  font-size: 0.85em;
+  text-decoration: none;
+}
+
+/* ---------- Small-phone floor & wide-phone sanity ---------- */
+
+@media (max-width: 360px) {
+  .app-header { padding: 0.85em 0.85em 1em; }
+  #main-content { padding: 0 0.75em; }
+}

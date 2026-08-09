@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F5A623">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BUDDY">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="style.css">
+<title>BUDDY — Family Road Trip</title>
+</head>
+<body>
+
+<div id="confetti-canvas-wrap"></div>
+
+<header class="app-header">
+  <div class="header-top">
+    <div class="brand">
+      <span class="brand-paw">🐾</span>
+      <span class="brand-name">BUDDY</span>
+      <span class="brand-sub">'s Road Trip</span>
+    </div>
+    <div class="score-pill" id="score-pill">
+      <span class="score-num" id="score-num">0</span>
+      <span class="score-label">/ <span id="score-total">1000</span> pts</span>
+    </div>
+  </div>
+  <div class="countdown-banner" id="countdown-banner">Loading…</div>
+  <div class="weather-banner" id="weather-banner">
+    🧥 PACK JACKETS! 54°F mornings, 66°F high, fog until ~10 AM.
+  </div>
+</header>
+
+<nav class="day-tabs" id="day-tabs" aria-label="Trip days"></nav>
+
+<main id="main-content">
+
+  <section class="day-panel" id="day-panel">
+    <div class="day-panel-head">
+      <h2 id="day-title">—</h2>
+      <div class="day-points" id="day-points">0 pts today</div>
+    </div>
+
+    <div class="map-card">
+      <div id="map"></div>
+      <div class="map-controls">
+        <button class="btn btn-ghost" id="locate-btn">📍 Show my location</button>
+        <span class="map-hint" id="map-offline-hint" hidden>No signal — map tiles may not load, but your stop list works fine offline.</span>
+      </div>
+    </div>
+
+    <ol class="stop-list" id="stop-list"></ol>
+  </section>
+
+  <section class="hunt-panel card-panel">
+    <h2>📸 Photo Scavenger Hunt <span class="bonus-tag">+25 pts each</span></h2>
+    <ul class="checklist" id="hunt-list"></ul>
+  </section>
+
+  <section class="badges-panel card-panel">
+    <h2>🏅 Badges</h2>
+    <div class="badge-grid" id="badge-grid"></div>
+  </section>
+
+  <section class="checklist-panel card-panel">
+    <h2>✅ Pre-Trip Checklist</h2>
+    <ul class="checklist" id="pretrip-list"></ul>
+  </section>
+
+  <footer class="app-footer">
+    Made with tail wags for the family road trip · Aug 9–12, 2026<br>
+    <button class="btn btn-text" id="reset-btn">Reset all progress</button>
+  </footer>
+
+</main>
+
+<div class="badge-toast" id="badge-toast" hidden>
+  <div class="badge-toast-inner">
+    <div class="badge-toast-emoji">🏅</div>
+    <div class="badge-toast-name" id="badge-toast-name">BADGE</div>
+    <div class="badge-toast-desc" id="badge-toast-desc"></div>
+  </div>
+</div>
+
+<script src="vendor/leaflet/leaflet.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
