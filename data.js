@@ -9,7 +9,7 @@ const TRIP_DAYS = [
     title: "The Big Drive",
     color: "#F5A623", // amber
     colorSoft: "#FFF3DD",
-    points: 250,
+    points: 275,
     stops: [
       {
         id: "d1-depart",
@@ -24,8 +24,21 @@ const TRIP_DAYS = [
         quote: "Road trip! I've claimed the back seat."
       },
       {
+        id: "d1-buellton",
+        driveMin: 140, dwellMin: 20, plannedMin: 680, anchored: false,
+        time: "~11:20 AM",
+        name: "Buellton Supercharger",
+        address: "555 McMurray Rd, Buellton, CA",
+        lat: 34.6146, lng: -120.1932,
+        points: 25,
+        phone: null,
+        dogFriendly: true,
+        note: "REQUIRED at 85% start — car can't reach Pismo direct. 20 stalls at the Marriott. Charge to ~80% (15-20 min).",
+        quote: "A snack stop for the CAR? When is MY snack stop?"
+      },
+      {
         id: "d1-pismo",
-        driveMin: 195, dwellMin: 60, plannedMin: 750, anchored: false,
+        driveMin: 40, dwellMin: 60, plannedMin: 750, anchored: false,
         time: "~12:30 PM",
         name: "Pismo Beach Supercharge + Lunch",
         address: "333 Five Cities Dr, Pismo Beach, CA",
